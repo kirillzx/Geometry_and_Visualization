@@ -31,8 +31,10 @@ class Line:
 
         if self.C > 0:
             c = '+ {:.2f}'.format(self.C)
-        else:
+        elif self.C<0:
             c = '- {:.2f}'.format(abs(self.C))
+        else:
+            c = '+ {:.2f}'.format(abs(self.C))
 
         return '{}x {}y {} = 0'.format(a, b, c)
 
@@ -66,6 +68,11 @@ class Line:
         else:
             return 'NO'
 
+    def perpendicularLine(self, point):
+        a_new = self.B/self.A
+        c_new = (self.B/self.A)*point.x - point.y
+        return Line(a_new, -1, -c_new)
+
     def nearPoint(self, point):
         a_new = -self.B/self.A
         b_new = 1
@@ -73,19 +80,56 @@ class Line:
         p = Line(a_new, b_new, c_new)
         return self.intersection(p)
 
+    def side(self, point):
+        side = self.A*point.x + self.B*point.y + self.C
+        if abs(side) < 0.001:
+            return 'on'
+        elif side > 0:
+            return 'l'
+        else:
+            return 'r'
+
+    def oneSide(self, point1, point2):
+        m1 = self.side(point1)
+        m2 = self.side(point2)
+        if (m1, m2) == ('r', 'r') or (m1, m2) == ('l', 'l'):
+            return True
+        elif (m1, m2) == ('r', 'l') or (m1, m2) == ('l', 'r'):
+            return False
+        else:
+            return True
+
+    def normalize(self):
+        if self.C != 0:
+            return Line(self.A/self.C, self.B/self.C, 1)
+        elif self.A != 0:
+            return Line(1, self.B/self.A, self.C/self.A)
+        else:
+            return Line(self.A/self.B, 1, self.C/self.B)
+
+    def parallelLine(self, point):
+        return Line(-self.A, -self.B, (self.A*point.x + self.B*point.y)).normalize()
+
+    def projectionLength(self, point1, point2):
+        return self.nearPoint(point1).distanceTo(self.nearPoint(point2))
+
+    def middlePoint(self, point):
+        near = self.nearPoint(point)
+        return Point((near.x + point.x)/2, (near.y + point.y)/2)
+
+    def symmetricPoint(self, point):
+        near = self.nearPoint(point)
+        return Point(2*near.x - point.x, 2*near.y - point.y)
+
     @staticmethod
     def fromCoord(x1, y1, x2, y2):
         return Line(y1-y2, x2-x1, x1*y2-x2*y1)
 
-line = Line.fromCoord(1, 0, 0, 1)
-point = Point(3, 4)
-# print(line)
-# print(line.distanceToPoint(point))
 line1 = Line.fromCoord(0, 1, 1, 0)
 line2 = Line.fromCoord(1, 0, 0, 1)
+point = Point(2, 2)
 point2 = Point(3, 3)
-# print(line1)
-# print(line1.isParallel(line2))
-# print(line1.intersection(line2))
-print(line1.nearPoint(point))
-print(line2.nearPoint(point2))
+# print(line2.nearPoint(point2))
+# print(line2.oneSide(point, point2))
+# print(line2.perpendicularLine(point))
+print(line1.middlePoint(point2))

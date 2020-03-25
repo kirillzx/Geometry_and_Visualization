@@ -6,7 +6,7 @@ class Point:
         self.y = y
 
     def __str__(self):
-        return '({:.2f}, {:.2f})'.format(self.x, self.y)
+        return '({:.4f}, {:.4f})'.format(self.x, self.y)
 
     def distanceTo(self, point):
         return math.sqrt((self.x - point.x)**2 + (self.y - point.y)**2)
@@ -73,19 +73,32 @@ class Line:
         p = Line(a_new, b_new, c_new)
         return self.intersection(p)
 
+    def side(self, point):
+        side = self.A*point.x + self.B*point.y + self.C
+        if abs(side) < 0.001:
+            return 'on'
+        elif side > 0:
+            return 'l'
+        else:
+            return 'r'
+
+    def oneSide(self, point1, point2):
+        m1 = self.side(point1)
+        m2 = self.side(point2)
+        if (m1, m2) == ('r', 'r') or (m1, m2) == ('l', 'l'):
+            return True
+        elif (m1, m2) == ('r', 'l') or (m1, m2) == ('l', 'r'):
+            return False
+        else:
+            return True
+
     @staticmethod
     def fromCoord(x1, y1, x2, y2):
         return Line(y1-y2, x2-x1, x1*y2-x2*y1)
 
-line = Line.fromCoord(1, 0, 0, 1)
-point = Point(3, 4)
-# print(line)
-# print(line.distanceToPoint(point))
 line1 = Line.fromCoord(0, 1, 1, 0)
-line2 = Line.fromCoord(1, 0, 0, 1)
-point2 = Point(3, 3)
-# print(line1)
-# print(line1.isParallel(line2))
-# print(line1.intersection(line2))
-print(line1.nearPoint(point))
-print(line2.nearPoint(point2))
+line2 = Line.fromCoord(-3, 0, 0, 1)
+point = Point(12, 2)
+point2 = Point(-6, -0.9999)
+# print(line2.nearPoint(point2))
+print(line2.oneSide(point, point2))
