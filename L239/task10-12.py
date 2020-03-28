@@ -101,23 +101,65 @@ class Line:
 
     def normalize(self):
         if self.C != 0:
-            return Line(self.A/self.C, self.B/self.C, 1)
+            self.A = self.A/self.C
+            self.B = self.B/self.C
+            self.C = 1.0
         elif self.A != 0:
-            return Line(1, self.B/self.A, self.C/self.A)
+            self.B = self.B/self.A
+            self.A = 1.0
+            self.C = 0.0
         else:
-            return Line(self.A/self.B, 1, self.C/self.B)
+            self.B = 1.0
+            self.A = 0.0
+            self.C = 0.0
 
     def parallelLine(self, point):
         return Line(-self.A, -self.B, (self.A*point.x + self.B*point.y)).normalize()
+
+    def insideTreug(self, point):
+        line1 = Line(0, 1, 0)
+        line2 = Line(1, 0, 0)
+        inter1 = self.intersection(line1)
+        inter2 = self.intersection(line2)
+        s1 = self.side(point)
+        s2 = line1.side(point)
+        s3 = line2.side(point)
+        # print(inter1, inter2)
+        # print(s1, s2, s3)
+        if inter1.x > 0 and inter2.y > 0:
+            if s1 == 'r' and s2 == 'l' and s3 == 'l':
+                return "YES"
+            else:
+                return "NO"
+        elif inter1.x < 0 and inter2.y > 0:
+            if s1 == 'r' and s2 == 'l' and s3 == 'l':
+                return "YES"
+            else:
+                return "NO"
+        elif inter1.x < 0 and inter2.y < 0:
+            if s1 == 'r' and s2 == 'r' and s3 == 'l':
+                return "YES"
+            else:
+                return "NO"
+        else:
+            if s1 == 'l' and s2 == 'r' and s3 == 'r':
+                return "YES"
+            else:
+                return "NO"
+
 
     @staticmethod
     def fromCoord(x1, y1, x2, y2):
         return Line(y1-y2, x2-x1, x1*y2-x2*y1)
 
-line1 = Line.fromCoord(0, 1, 1, 0)
-line2 = Line.fromCoord(1, 0, 0, 1)
-point = Point(2, 3)
-point2 = Point(-6, -0.9999)
+line1 = Line.fromCoord(2, 0, 0, 2)
+line2 = Line.fromCoord(2, 3, -5, 6)
+point = Point(3, 3)
+point2 = Point(0.25, 0.1)
+# print(line1.normalize(), line1)
+# print(line2.normalize())
 # print(line2.nearPoint(point2))
 # print(line2.oneSide(point, point2))
-print(line2.perpendicularLine(point))
+# print(line2.perpendicularLine(point))
+# print(line1.insideTreug(point))
+# print(line1.insideTreug(point2))
