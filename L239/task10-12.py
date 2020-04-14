@@ -21,13 +21,18 @@ class Line:
     def __str__(self):
         if self.A > 0:
             a = '{:.2f}'.format(self.A)
-        else:
+        elif self.A<0:
             a = '-{:.2f}'.format(abs(self.A))
+        else:
+            a = '{:.2f}'.format(abs(self.A))
 
         if self.B > 0:
             b = '+ {:.2f}'.format(self.B)
-        else:
+        elif self.B<0:
             b = '- {:.2f}'.format(abs(self.B))
+        else:
+            b = '+ {:.2f}'.format(abs(self.B))
+
 
         if self.C > 0:
             c = '+ {:.2f}'.format(self.C)
@@ -69,9 +74,13 @@ class Line:
             return 'NO'
 
     def perpendicularLine(self, point):
-        a_new = self.B/self.A
-        c_new = (self.B/self.A)*point.x - point.y
-        return Line(a_new, -1, -c_new)
+        A = -1
+        if self.B != 0:
+            B = self.A / self.B
+        else:
+            B = self.B
+        C = point.x - B*point.y
+        return Line(-A, -B, -C)
 
     def nearPoint(self, point):
         a_new = -self.B/self.A
@@ -101,48 +110,39 @@ class Line:
 
     def normalize(self):
         if self.C != 0:
-            self.A = self.A/self.C
-            self.B = self.B/self.C
-            self.C = 1.0
+            self.A = self.A / self.C
+            self.B = self.B / self.C
+            self.C = 1
         elif self.A != 0:
-            self.B = self.B/self.A
-            self.A = 1.0
-            self.C = 0.0
+            self.A = 1
+            self.B = self.B / self.A
+            self.C = 0
         else:
-            self.B = 1.0
-            self.A = 0.0
-            self.C = 0.0
+            self.A = 0
+            self.B = 1
+            self.C = 0
+
 
     def parallelLine(self, point):
         return Line(-self.A, -self.B, (self.A*point.x + self.B*point.y)).normalize()
 
     def insideTreug(self, point):
-        line1 = Line(0, 1, 0)
-        line2 = Line(1, 0, 0)
-        inter1 = self.intersection(line1)
-        inter2 = self.intersection(line2)
-        s1 = self.side(point)
-        s2 = line1.side(point)
-        s3 = line2.side(point)
-        # print(inter1, inter2)
-        # print(s1, s2, s3)
-        if inter1.x > 0 and inter2.y > 0:
-            if s1 == 'r' and s2 == 'l' and s3 == 'l':
-                return "YES"
-            else:
-                return "NO"
-        elif inter1.x < 0 and inter2.y > 0:
-            if s1 == 'r' and s2 == 'l' and s3 == 'l':
-                return "YES"
-            else:
-                return "NO"
-        elif inter1.x < 0 and inter2.y < 0:
-            if s1 == 'r' and s2 == 'r' and s3 == 'l':
-                return "YES"
-            else:
-                return "NO"
+        if (self.A == 0) or (self.B == 0):
+            return "NO"
         else:
-            if s1 == 'l' and s2 == 'r' and s3 == 'r':
+            axis_x = Line.fromCoord(0,0,1,0)
+            axis_y = Line.fromCoord(0,0,0,1)
+
+            int_a_x = self.intersection(axis_x)
+            int_b_y = self.intersection(axis_y)
+            int_c = axis_x.intersection(axis_y)
+
+            new_a = (int_a_x.x - point.x) * (int_b_y.y - int_a_x.y) - (int_b_y.x - int_a_x.x) * (int_a_x.y - point.y)
+            new_b = (int_b_y.x - point.x) * (int_c.y - int_b_y.y) - (int_c.x - int_b_y.x) * (int_b_y.y - point.y)
+            new_c = (int_c.x - point.x) * (int_a_x.y - int_c.y) - (int_a_x.x - int_c.x)*(int_c.y - point.y)
+
+            sign = lambda a: 1 if a>0 else -1 if a<0 else 0
+            if sign(new_a) == sign(new_b) == sign(new_c):
                 return "YES"
             else:
                 return "NO"
@@ -152,14 +152,15 @@ class Line:
     def fromCoord(x1, y1, x2, y2):
         return Line(y1-y2, x2-x1, x1*y2-x2*y1)
 
-line1 = Line.fromCoord(2, 0, 0, 2)
+line1 = Line.fromCoord(-3, 3, 4.5, -4.5)
 line2 = Line.fromCoord(2, 3, -5, 6)
 point = Point(3, 3)
 point2 = Point(0.25, 0.1)
-# print(line1.normalize(), line1)
+print(line1)
+print(line1.normalize(), line1)
 # print(line2.normalize())
 # print(line2.nearPoint(point2))
 # print(line2.oneSide(point, point2))
 # print(line2.perpendicularLine(point))
-# print(line1.insideTreug(point))
+print(line1.insideTreug(point))
 # print(line1.insideTreug(point2))
