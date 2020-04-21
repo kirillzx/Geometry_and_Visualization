@@ -105,13 +105,12 @@ def MxM(a, b):
 
         return tuple(map(tuple, c))
 def MRot(x, a):
-        row1 = (0, x[2], -x[1])
-        row2 = (-x[2], 0, x[0])
-        row3 = (x[2], -x[0], 0)
-        s = ((row1, row2, row3))
-        r1 = MplusM(mI(), MxR(s, sin(a)))
-        rotation_matrix = MplusM(r1, MxR(MxM(s, s), 1 - cos(a)))
-        return rotation_matrix
+        x1 = (0, x[2], -x[1])
+        x2 = (-x[2], 0, x[0])
+        x3 = (x[1], -x[0], 0)
+        s = ((x1, x2, x3))
+        r1 = MplusM(mI(), MplusM(MxR(s, sin(a)), MxR(MxM(s, s), 1 - cos(a))))
+        return r1
 
 # print(VxR((1,0,0),5))
 # print(VplusV((1.0,0.0,0.0), (2,3,4)))
@@ -123,4 +122,4 @@ print(MxR(a, 4))
 print(MplusM(a,b))
 print(MxV(b, (1,2,1)))
 print(MxM(a,b))
-print(MRot((1,0,0), 3.1))
+print(MRot((1,0,0), 3.1415926))
